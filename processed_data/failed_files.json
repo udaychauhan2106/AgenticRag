@@ -1,0 +1,38 @@
+[
+  {
+    "path": "DATA\\noisy_data\\A Brief Introduction to Neural Networks (neuronalenetze-en-zeta2-2col-dkrieselcom).pdf",
+    "filename": "A Brief Introduction to Neural Networks (neuronalenetze-en-zeta2-2col-dkrieselcom).pdf",
+    "source_type": "noisy",
+    "reason": "error"
+  },
+  {
+    "path": "DATA\\noisy_data\\A Forensic Analysis of CSG 11 Encounter with an Anomalous Aerial Vehicle.pdf",
+    "filename": "A Forensic Analysis of CSG 11 Encounter with an Anomalous Aerial Vehicle.pdf",
+    "source_type": "noisy",
+    "reason": "error"
+  },
+  {
+    "path": "DATA\\noisy_data\\A Framework for Building Extensible C++ Class Libraries - 1993.pdf",
+    "filename": "A Framework for Building Extensible C++ Class Libraries - 1993.pdf",
+    "source_type": "noisy",
+    "reason": "error"
+  },
+  {
+    "path": "DATA\\noisy_data\\A GPU-friendly Skiplist Algorith - 2014 (GPUSkiplist).pdf",
+    "filename": "A GPU-friendly Skiplist Algorith - 2014 (GPUSkiplist).pdf",
+    "source_type": "noisy",
+    "reason": "error"
+  },
+  {
+    "path": "DATA\\noisy_data\\A NUMA API for Linux - Novell (2005).pdf",
+    "filename": "A NUMA API for Linux - Novell (2005).pdf",
+    "source_type": "noisy",
+    "reason": "error"
+  },
+  {
+    "path": "DATA\\noisy_data\\A Trip Through The Graphics Pipeline - All (2011).docx",
+    "filename": "A Trip Through The Graphics Pipeline - All (2011).docx",
+    "source_type": "noisy",
+    "reason": "error"
+  }
+]
