@@ -12,5 +12,18 @@ class Settings:
     GROQ_MODEL="llama-3.3-70b-versatile"
     GROQ_FALLBACK_API_KEY=os.environ.get("GROQ_FALLBACK_API_KEY")
 
+    PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")
+    GROQ_SLUG =  "rag"     
+    GROQ_SLUG_2 = "brag"
+    
+    LANGSMITH_TRACING = os.getenv("LANGSMITH_TRACING", "true")
+    LANGSMITH_API_KEY = os.getenv("LANGSMITH_API_KEY")
+    LANGSMITH_PROJECT = os.getenv("LANGSMITH_PROJECT", "rag-project")
+    LANGSMITH_ENDPOINT = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
+
+os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGSMITH_TRACING", "true")
+os.environ["LANGCHAIN_API_KEY"] = os.getenv("LANGSMITH_API_KEY", "")
+os.environ["LANGCHAIN_PROJECT"] = os.getenv("LANGSMITH_PROJECT", "rag-project")
+os.environ["LANGCHAIN_ENDPOINT"] = os.getenv("LANGSMITH_ENDPOINT", "https://api.smith.langchain.com")
 
 settings=Settings()
