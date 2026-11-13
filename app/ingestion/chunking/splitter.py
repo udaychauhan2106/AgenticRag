@@ -1,31 +1,27 @@
 from typing import List
-import logfire
+
 
 def chunk_text(text: str, chunk_size:int=1500)->List[str]:
     """
     Simple chunker that splits by paragraphs 
     Ensure chunks do not exceed the specified size.
     """
-    with logfire.span("Text Chunking", text_length=len(text)):
-        if not text.strip():
-            return[]
-        paragraphs=text.split("\n\n")
-        chunks=[]
-        current_chunk=""
+    if not text.strip():
+        return []
+    paragraphs = text.split("\n\n")
+    chunks = []
+    current_chunk = ""
 
-        for p in paragraphs:
-            if len(current_chunk)+len(p)<chunk_size:
-                current_chunk+= p +"\n\n"
+    for paragraph in paragraphs:
+        if len(current_chunk) + len(paragraph) < chunk_size:
+            current_chunk += paragraph + "\n\n"
+        else:
+            if current_chunk.strip():
+                chunks.append(current_chunk.strip())
+            current_chunk = paragraph + "\n\n"
+    if current_chunk.strip():
+        chunks.append(current_chunk.strip())
 
-            else:
-                if current_chunk.strip():
-                    chunks.append(current_chunk.strip())
-                current_chunk= p + "\n\n"
-        if current_chunk.strip():
-            chunks.append(current_chunk.strip())
-
-        valid_chunks=[c for c in chunks if c.strip()]
-        logfire.info(f"Generated{len(valid_chunks)} chunks")
-        return valid_chunks
+    return [chunk for chunk in chunks if chunk.strip()]
     
         

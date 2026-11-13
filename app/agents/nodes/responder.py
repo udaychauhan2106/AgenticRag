@@ -1,10 +1,16 @@
-import logfire 
-import time
+import logging
+
 from app.agents.state import AgentState
 from app.config import settings
 from langchain_groq import ChatGroq
 
-llm=ChatGroq(api_key=settings.GROQ_API_KEY , model=settings.GROQ_MODEL,temperature=0)
+logger = logging.getLogger(__name__)
+
+llm = ChatGroq(
+    api_key=settings.GROQ_API_KEY,
+    model=settings.GROQ_MODEL,
+    temperature=0,
+)
 
 
 def generate_node(state: AgentState):
@@ -22,7 +28,7 @@ def generate_node(state: AgentState):
     user_msg = state["messages"][-1]["content"] if state["messages"] else ""
 
     if query == "CONVERSATIONAL":
-        logfire.info("Generating conversational response using memory.")
+        logger.info("Generating conversational response using memory")
         prompt = f"""
         You are a friendly and helpful Enterprise AI Assistant.
         Answer the user's latest message using the CONVERSATION HISTORY below.
@@ -34,7 +40,7 @@ def generate_node(state: AgentState):
         "{user_msg}"
         """
     else:
-        logfire.info("Generating technical RAG response.")
+        logger.info("Generating technical RAG response")
         max_context_chars = 25000
         full_context = ""
 
@@ -42,7 +48,7 @@ def generate_node(state: AgentState):
             if len(full_context) + len(doc) < max_context_chars:
                 full_context += doc + "\n\n"
             else:
-                logfire.warning("Context truncated to fit Groq TPM limits.")
+                logger.warning("Context truncated to fit Groq token limits")
                 break
 
         prompt = f"""
@@ -59,28 +65,17 @@ def generate_node(state: AgentState):
         "{user_msg}"
         """
 
-    with logfire.span("✍️ LLM Synthesis"):
-        try:
-            started = time.perf_counter()
-            response = llm.invoke(prompt)
-            generation_ms = (time.perf_counter() - started) * 1000
-            content = response.content
-            logfire.info("✅ Response synthesised via Groq.")
-            usage = response.usage_metadata or {}
+    try:
+        response = llm.invoke(prompt)
+        content = response.content
+        logger.info("Response generated with Groq")
 
-            return {
-                "final_answer": content,
-                "generation_ms": generation_ms,
-                "model_usage": [{
-                    "model": settings.GROQ_MODEL,
-                    "input_tokens": usage.get("input_tokens", 0),
-                    "output_tokens": usage.get("output_tokens", 0),
-                }],
-                "status": "Response generated.",
-                "plan": state["plan"],
-                "messages": [{"role": "assistant", "content": content}]
-            }
-
-        except Exception as e:
-            logfire.error(f"LLM Generation failed: {e}")
-            raise e
+        return {
+            "final_answer": content,
+            "status": "Response generated.",
+            "plan": state["plan"],
+            "messages": [{"role": "assistant", "content": content}],
+        }
+    except Exception:
+        logger.exception("LLM generation failed")
+        raise

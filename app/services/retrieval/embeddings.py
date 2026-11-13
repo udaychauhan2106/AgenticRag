@@ -1,10 +1,12 @@
 import time
 import random
-import logfire
- 
+import logging
+
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from app import settings
- 
+
+logger = logging.getLogger(__name__)
+
 BATCH_SIZE = 50
 _GEMINI_DIM = 3072
 _FALLBACK_DIM = 768
@@ -27,16 +29,16 @@ def _probe_gemini():
             google_api_key=settings.GEMINI_API_KEY,
         )
         model.embed_query("probe")
-        logfire.info("Gemini embeddings ready (gemini-embedding-2-preview, 3072-dim)")
+        logger.info("Gemini embeddings ready (gemini-embedding-2-preview, 3072 dimensions)")
         return model
     except Exception as e:
-        logfire.warning(f"Gemini probe failed: {e}. Will use sentence-transformers fallback.")
+        logger.warning("Gemini probe failed; using sentence-transformers fallback: %s", e)
         return None
  
  
 def _load_fallback():
     from sentence_transformers import SentenceTransformer
-    logfire.info("Loading sentence-transformers fallback (all-mpnet-base-v2, 768-dim)")
+    logger.info("Loading sentence-transformers fallback (all-mpnet-base-v2, 768 dimensions)")
     return SentenceTransformer("all-mpnet-base-v2")
  
  
@@ -64,19 +66,6 @@ def get_embedding_dim() -> int:
     """Return the vector dimension for the active model. Triggers _init() if needed."""
     _init()
     return _GEMINI_DIM if _model_type == "gemini" else _FALLBACK_DIM
-
-
-def get_embedding_model_name(initialize: bool = True) -> str:
-    """Return the model currently selected for embeddings."""
-    if initialize:
-        _init()
-    if _model_type is None:
-        return "not_initialized"
-    return (
-        "models/gemini-embedding-2-preview"
-        if _model_type == "gemini"
-        else "sentence-transformers/all-mpnet-base-v2"
-    )
  
  
 def _classify_error(err: str) -> str:
@@ -100,18 +89,19 @@ def _embed_batch(batch: list[str]) -> list[list[float]]:
                 kind = _classify_error(str(e))
  
                 if kind == "daily_quota":
-                    logfire.error(f"Gemini daily quota exhausted: {e}")
+                    logger.error("Gemini daily quota exhausted: %s", e)
                     raise QuotaExhausted(str(e)) from e
  
                 if kind == "rate_limit" and attempt < 3:
                     wait = min(2 ** attempt + random.uniform(0, 1), 30)
-                    logfire.warning(
-                        f"Gemini rate limit hit - retrying in {wait:.1f}s "
-                        f"(attempt {attempt + 1}/4)"
+                    logger.warning(
+                        "Gemini rate limit hit; retrying in %.1fs (attempt %d/4)",
+                        wait,
+                        attempt + 1,
                     )
                     time.sleep(wait)
                 else:
-                    logfire.error(f"Gemini embedding failed: {e}")
+                    logger.exception("Gemini embedding failed")
                     raise
         raise RuntimeError("Gemini rate limit persisted after 4 attempts")
     else:
@@ -130,6 +120,5 @@ def embed_texts(texts: list[str]) -> list[list[float]]:
     all_embeddings: list[list[float]] = []
     for i in range(0, len(texts), BATCH_SIZE):
         batch = texts[i:i + BATCH_SIZE]
-        with logfire.span("Embed batch", model=_model_type, start=i, size=len(batch)):
-            all_embeddings.extend(_embed_batch(batch))
+        all_embeddings.extend(_embed_batch(batch))
     return all_embeddings

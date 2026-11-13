@@ -1,10 +1,11 @@
 import time
-import logfire
+import logging
+
 from flashrank import Ranker, RerankRequest
 
+logger = logging.getLogger(__name__)
 
 _ranker = None
-RERANKER_MODEL = "ms-marco-MiniLM-L-6-v2"
 
 
 def _get_ranker() -> Ranker:
@@ -14,18 +15,17 @@ def _get_ranker() -> Ranker:
     """
     global _ranker
     if _ranker is None:
-        logfire.info("🧠 Initializing FlashRank Model (TinyBERT) locally...")
+        logger.info("Initializing FlashRank model locally")
         try:
             _ranker = Ranker(cache_dir="/tmp/flashrank")
         except Exception:
+            logger.exception("Could not load FlashRank from its configured cache; using the default cache")
             _ranker = Ranker()
     return _ranker
 
 
 
-def rerank_documents_with_indices(
-    query: str, documents: list[str], top_n: int = 5
-) -> list[tuple[int, str]]:
+def rerank_documents(query: str, documents: list[str], top_n: int = 5) -> list[str]:
     """
     Refines retrieval results by re-scoring documents against the query semantically.
 
@@ -34,7 +34,7 @@ def rerank_documents_with_indices(
         return []
 
     start_time = time.time()
-    logfire.info(f"📡 [Reranker] Sending {len(documents)} docs to FlashRank Cross-Encoder...")
+    logger.info("Reranking %d documents with FlashRank", len(documents))
 
     try:
         ranker = _get_ranker()
@@ -49,21 +49,14 @@ def rerank_documents_with_indices(
         
         reranked_docs = []
         for res in results[:top_n]:
-            reranked_docs.append((int(res["id"]), res["text"]))
+            reranked_docs.append(res['text'])
 
         duration = time.time() - start_time
         top_score = results[0]['score'] if results else 'N/A'
-        logfire.info(f"✅ [Reranker] Done in {duration:.2f}s. Top semantic score: {top_score}")
+        logger.info("FlashRank reranking finished in %.2fs; top score: %s", duration, top_score)
         
         return reranked_docs
 
-    except Exception as e:
-        logfire.error(f"❌ [Reranker] Semantic Reranking Failed: {e}")
-        raise
-
-
-def rerank_documents(query: str, documents: list[str], top_n: int = 5) -> list[str]:
-    return [
-        document
-        for _, document in rerank_documents_with_indices(query, documents, top_n)
-    ]
+    except Exception:
+        logger.exception("FlashRank reranking failed; returning original retrieval order")
+        return documents[:top_n]

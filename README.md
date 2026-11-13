@@ -106,8 +106,30 @@ Technical queries are rewritten into retrieval-friendly search queries, embedded
 | Reranking           | FlashRank                                        |
 | Backend API         | FastAPI                                          |
 | Frontend            | Streamlit                                        |
-| Configuration       | Pydantic Settings                                |
+| Configuration       | Environment variables (`.env`)                  |
 | Package Management  | uv                                               |
+
+---
+
+## Run Locally
+
+Create a local environment file from the template and add your Groq, Gemini, and
+Qdrant credentials:
+
+```powershell
+Copy-Item .env.example .env
+uv sync
+```
+
+Run the API and frontend in separate terminals:
+
+```powershell
+uv run uvicorn app.main:app --reload
+```
+
+```powershell
+uv run streamlit run ui/app.py
+```
 
 ---
 
@@ -432,7 +454,7 @@ POST /query
 
 ```json
 {
-    "question": "Explain how transformers use self-attention.",
+    "q": "Explain how transformers use self-attention.",
     "thread_id": "example-session-123"
 }
 ```
@@ -441,14 +463,14 @@ POST /query
 
 ```json
 {
+    "question": "Explain how transformers use self-attention.",
     "answer": "Self-attention allows each token in a sequence to...",
     "thought_process": [
-        "Query classified",
-        "Retrieval required",
-        "Context Retrieved",
-        "Answer Generated"
+        "Intent: Technical",
+        "Search Term: transformer self-attention mechanism",
+        "Context Retrieved"
     ],
-    "status": "Complete",
+    "status": "Response generated.",
     "sources": []
 }
 ```
@@ -462,105 +484,6 @@ GET /graph
 ```
 
 Returns a Mermaid-generated visualization of the compiled LangGraph workflow.
-
----
-
-## Metrics and Evaluation
-
-The application separates **runtime telemetry** from **benchmark evaluation**.
-
-### Runtime telemetry
-
-Each `/query` request records timings, token counts, outcome, timeout status,
-failure stage, retrieved chunk count, model names, embedding model, and Qdrant
-collection in a local SQLite database. Request and answer text are not stored.
-`GET /metrics` returns aggregate latency (p50/p95), success and timeout rates,
-token averages, available cost estimates, and ingestion throughput. The same
-summary is available from the terminal:
-
-```powershell
-uv run python -m app.metrics
-```
-
-Ingestion runs are measured automatically. To index the trusted sample corpus
-and collect its ingestion metrics, run:
-
-```powershell
-uv run python -m app.ingestion.processor DATA\true_data --source-type true
-```
-
-Do not use `DATA\noisy_data` for the baseline collection. It is reserved for a
-separate noise-robustness experiment.
-
-Cost estimates are `null` until model-specific USD-per-million-token rates are
-configured in `LLM_COST_PER_MILLION_TOKENS_JSON`. LLM token usage comes from
-provider responses; embedding token count is a documented lexical estimate.
-The estimated cost includes the configured planner, guardrail, answer model,
-and query-embedding rates. It is not a provider invoice.
-
-Set `METRICS_DB_PATH` to move the local database; otherwise it is stored at
-`.metrics/runtime.sqlite3` (ignored by Git).
-
-### Reproducible benchmark
-
-The versioned labeled dataset is [`eval/golden.json`](./eval/golden.json). Each
-example includes a question, reference answer, answerability, relevant
-document IDs, and relevant chunk IDs in `document#chunk-index` form. Update the
-dataset version whenever labels change, and review labels against the trusted
-corpus before using results for comparisons.
-
-Run the evaluation against the current Qdrant collection:
-
-```powershell
-uv run python -m app.evaluation --output reports/evaluation.json
-```
-
-The command writes a machine-readable JSON report and prints a concise summary.
-It evaluates semantic top-K against the same candidate set reranked by
-FlashRank, reporting document- and chunk-level Recall@K, Precision@K, MRR@K,
-and nDCG@K. The report records dataset and corpus SHA-256 fingerprints, model
-names, collection point count, candidate count, K, and reranker model/settings.
-Answer generation is measured separately from retrieval. Optional
-`--judge` adds supplemental 1–5 Groq judge scores; judge scores are not ground
-truth. A human-review JSONL may be supplied with `--review-file`; each row
-contains `id`, `faithfulness`, `correctness`, `context_relevance` (each 1–5 or
-null), and optionally `reviewer` and `notes`.
-
-Without a judge or human review, answer correctness is reported as reference
-token F1 and faithfulness as lexical context-support coverage. These are
-transparent proxies—not proof of semantic correctness or faithfulness.
-Context relevance is also reported as the fraction of retrieved documents
-matching the labeled relevant documents. Review actual answers and contexts
-before drawing quality conclusions. Runtime metrics in the evaluation report
-are historical app traffic and are kept separate from benchmark timings.
-
-### Evaluation baseline
-
-The current measured baseline is recorded in
-[`reports/evaluation.json`](./reports/evaluation.json). Treat it as a small
-smoke benchmark, not a statistically representative quality claim; increase
-the number and diversity of reviewed examples before making model or retrieval
-decisions.
-
-| Measurement | Observed result |
-| --- | --- |
-| Trusted corpus | 6 documents, 70 chunks, 14,548 lexical-token estimate; 2 DOCX, 2 HTML, 1 PPTX, 1 TXT |
-| Semantic retrieval, document-level | Recall@5 1.000, Precision@5 0.240, MRR@5 1.000, nDCG@5 0.984 |
-| Semantic + FlashRank, document-level | Recall@5 1.000, Precision@5 0.240, MRR@5 0.900, nDCG@5 0.939 |
-| Semantic retrieval, chunk-level | Recall@5 0.900, Precision@5 0.200, MRR@5 0.850, nDCG@5 0.809 |
-| Semantic + FlashRank, chunk-level | Recall@5 0.700, Precision@5 0.160, MRR@5 0.650, nDCG@5 0.653 |
-| Answer-quality proxies (6 examples) | Reference token F1 0.073, lexical context support 0.536, context relevance precision 0.500, unanswerable abstention 0.000 |
-| Live API sample (3 queries) | Success 3/3, timeout 0/3; end-to-end p50/p95 10.86s/29.59s; retrieval 2.87s/2.97s; generation 2.46s/2.63s |
-| Mean model tokens per live query | Input 3,898; output 3,292; embedding query lexical estimate 6 |
-| Cost and ingestion throughput | Not measured: pricing rates are unset and no instrumented ingestion run is in this sample |
-
-Retrieval results average over the five answerable labels and use a
-trusted-only Qdrant collection. Answer-quality values are lexical proxies; the
-unanswerable example was not abstained from, and no human reviews or LLM judge
-scores were collected. Runtime percentiles come from only three live requests
-and should not be treated as stable service-level estimates. The report
-includes the dataset, corpus, Qdrant collection, evaluation-code fingerprints,
-model names, and retrieval settings for reproducibility.
 
 ---
 
@@ -580,7 +503,7 @@ The API receives:
 
 ```json
 {
-    "question": "How does self-attention work in transformers?",
+    "q": "How does self-attention work in transformers?",
     "thread_id": "session-123"
 }
 ```
@@ -649,8 +572,6 @@ Known limitations include:
 * The system does not currently perform retrieval relevance thresholding.
 * Retrieved answers do not include verified inline citations.
 * Long conversation histories are not automatically summarized or trimmed.
-* The RAG evaluation suite has a small trusted-corpus benchmark; its labels and
-  answer-quality proxies need broader human-reviewed coverage.
 * Deployment configuration and CI/CD pipelines are not yet included.
 
 ---
@@ -666,8 +587,6 @@ Planned improvements include:
 * Source citations in generated answers
 * Conversation history summarization
 * Streaming responses
-* Expand the retrieval and generation evaluation set with human-reviewed labels
-* LangSmith tracing and observability
 * Automated testing
 * Docker-based deployment
 * CI/CD pipeline

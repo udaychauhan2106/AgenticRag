@@ -1,8 +1,9 @@
 from app.agents.state import AgentState
 from app.config import settings
 from langchain_groq import ChatGroq
-import logfire
-import time
+import logging
+
+logger = logging.getLogger(__name__)
 
 llm = ChatGroq(
     api_key=settings.GROQ_API_KEY,
@@ -39,32 +40,16 @@ def planner_node(state: AgentState):
     
     Output ONLY 'CONVERSATIONAL' or the search query.
     """
-    with logfire.span("Planner Decision"):
-        started = time.perf_counter()
-        response = llm.invoke(prompt)
-        planner_ms = (time.perf_counter() - started) * 1000
-        decision = response.content.strip()
-        logfire.info(f"Intent identified :{decision}")
-
-    usage = response.usage_metadata or {}
-    metrics = {
-        "planner_ms": planner_ms,
-        "model_usage": [{
-            "model": settings.GROQ_PLANNER_MODEL,
-            "input_tokens": usage.get("input_tokens", 0),
-            "output_tokens": usage.get("output_tokens", 0),
-        }],
-    }
+    decision = llm.invoke(prompt).content.strip()
+    logger.info("Planner intent: %s", decision)
 
     if decision =="CONVERSATIONAL":
         return {
-            **metrics,
             "current_query" : "CONVERSATIONAL",
             "status":"Handling conversationally (using memory)...",
             "plan":["Intent:Conversational/Memory","Retrieval: Skipped"]
         }
     return {
-        **metrics,
         "current_query": decision,
         "status": f"Technical research needed. Searching for: {decision}",
         "plan": ["Intent: Technical", f"Search Term: {decision}"]
