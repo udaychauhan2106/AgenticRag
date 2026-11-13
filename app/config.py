@@ -9,7 +9,8 @@ class Settings:
     QUADRANT_COLLECTION="enterprise_rag"
 
     GROQ_API_KEY=os.environ.get("GROQ_API_KEY")
-    GROQ_MODEL="llama-3.3-70b-versatile"
+    GROQ_MODEL="openai/gpt-oss-120b"
+    GROQ_PLANNER_MODEL="openai/gpt-oss-20b"
     GROQ_FALLBACK_API_KEY=os.environ.get("GROQ_FALLBACK_API_KEY")
 
     PORTKEY_API_KEY = os.getenv("PORTKEY_API_KEY")

@@ -1,0 +1,634 @@
+{
+  "report_version": "1",
+  "started_at": "2026-11-11T01:44:41.559531+00:00",
+  "completed_at": "2026-11-11T01:45:41.185427+00:00",
+  "dataset": {
+    "name": "trusted-kubernetes-rag",
+    "version": "1.0.0",
+    "sha256": "2ca9188fe32db24621ee977d7fc63d5fdf2f27347bcc03f1f4c47df43920000d",
+    "examples": 6
+  },
+  "reproducibility": {
+    "evaluation_code_sha256": "6ccba028b3c8b1c9b805b1f3c050f1854a8755c31e5906cf694e94ab2f691b9b",
+    "models": {
+      "guardrails": "openai/gpt-oss-20b",
+      "planner": "openai/gpt-oss-20b",
+      "answer_generator": "openai/gpt-oss-120b",
+      "embedding": "models/gemini-embedding-2-preview",
+      "optional_judge": null
+    },
+    "retrieval_configuration": {
+      "collection": "enterprise_rag",
+      "collection_status": "green",
+      "vector_dimension": 3072,
+      "vector_distance": "Cosine",
+      "candidate_k": 15,
+      "evaluation_k": 5,
+      "reranker": "ms-marco-MiniLM-L-6-v2",
+      "reranker_returned_candidates": 15,
+      "answer_context_chunks": 5,
+      "planner_temperature": 0,
+      "answer_temperature": 0
+    },
+    "corpus": {
+      "processed_data_path": "processed_data/true",
+      "sha256": "1d60d081a84a9a52f0f294a3cac5f535c69cf56b2305c29dabeb639498be1f09",
+      "collection_point_count": 70,
+      "collection_sha256": "29e9b364b748fb65c63140b815519f51e11092b1d7bd83f133d5630fad440ade",
+      "collection_source_types": [
+        "true"
+      ],
+      "processed_files": [
+        "architecture.pptx.json",
+        "cronjobs.docx.json",
+        "job_management.html.json",
+        "monitor_job.docx.json",
+        "parallel_work_queue.txt.json",
+        "pods_autoscale.html.json"
+      ],
+      "processed_documents": 6,
+      "processed_chunks": 70,
+      "lexical_token_count": 14548,
+      "token_count_method": "Unicode word-token estimate; not provider tokenizer tokens",
+      "file_types": {
+        ".docx": 2,
+        ".html": 2,
+        ".pptx": 1,
+        ".txt": 1
+      }
+    }
+  },
+  "retrieval": {
+    "semantic_only_document_metrics": {
+      "mrr@5": 1.0,
+      "ndcg@5": 0.9839441578296375,
+      "precision@5": 0.24000000000000005,
+      "recall@5": 1.0
+    },
+    "semantic_plus_flashrank_document_metrics": {
+      "mrr@5": 0.9,
+      "ndcg@5": 0.9386852807234541,
+      "precision@5": 0.24000000000000005,
+      "recall@5": 1.0
+    },
+    "semantic_only_chunk_metrics": {
+      "mrr@5": 0.85,
+      "ndcg@5": 0.8087647501677703,
+      "precision@5": 0.2,
+      "recall@5": 0.9
+    },
+    "semantic_plus_flashrank_chunk_metrics": {
+      "mrr@5": 0.65,
+      "ndcg@5": 0.6528136245145182,
+      "precision@5": 0.16,
+      "recall@5": 0.7
+    },
+    "comparison": "Both modes use the same semantic candidate set; FlashRank reorders its top candidates."
+  },
+  "answer_quality": {
+    "deterministic_proxy_averages": {
+      "context_lexical_support_proxy": 0.5363168291646241,
+      "context_relevance_precision": 0.5,
+      "reference_token_f1": 0.07291054793768706,
+      "unanswerable_abstention": 0.0
+    },
+    "human_review_scores_are_separate": true,
+    "llm_judge_enabled": false,
+    "llm_judge_is_not_ground_truth": true,
+    "llm_judge_average_scores_1_to_5": {},
+    "human_review_scores_1_to_5": {
+      "context_relevance": null,
+      "correctness": null,
+      "faithfulness": null
+    },
+    "human_reviewed_examples": 0
+  },
+  "runtime_metrics": {
+    "query_count": 3,
+    "successful_query_rate": 1.0,
+    "timeout_rate": 0.0,
+    "failed_queries": 0,
+    "latency": {
+      "end_to_end": {
+        "p50_ms": 10862.932600000931,
+        "p95_ms": 29586.84979999998,
+        "mean_ms": 16750.32373333367
+      },
+      "guardrails": {
+        "p50_ms": 3845.891599999959,
+        "p95_ms": 6463.301199999478,
+        "mean_ms": 4513.578233333344
+      },
+      "planner": {
+        "p50_ms": 657.3879999996279,
+        "p95_ms": 17852.880200000072,
+        "mean_ms": 6387.23590000033
+      },
+      "retrieval": {
+        "p50_ms": 2868.3375000000524,
+        "p95_ms": 2966.959500001394,
+        "mean_ms": 2735.4448666671183
+      },
+      "embedding": {
+        "p50_ms": 1499.277599999914,
+        "p95_ms": 1512.706999999864,
+        "mean_ms": 1301.5294333332956
+      },
+      "vector_search": {
+        "p50_ms": 1454.2103000003408,
+        "p95_ms": 1478.3908999997948,
+        "mean_ms": 1433.8762333330426
+      },
+      "reranking": {
+        "p50_ms": 1005.2546000006259,
+        "p95_ms": 1009.5929999988584,
+        "mean_ms": 750.7097666669628
+      },
+      "generation": {
+        "p50_ms": 2458.9473999985785,
+        "p95_ms": 2630.8558999990055,
+        "mean_ms": 2333.9151333323875
+      }
+    },
+    "tokens": {
+      "mean_input": 3898.3333333333335,
+      "mean_output": 3292.0,
+      "mean_embedding_query_lexical_estimate": 6.0
+    },
+    "models": {
+      "llm": [
+        "openai/gpt-oss-120b",
+        "openai/gpt-oss-20b"
+      ],
+      "embedding": [
+        "models/gemini-embedding-2-preview"
+      ],
+      "collections": [
+        "enterprise_rag"
+      ]
+    },
+    "estimated_cost_usd": {
+      "measured_queries": 0,
+      "mean_per_measured_query": null,
+      "total": null
+    },
+    "ingestion": {
+      "run_count": 0,
+      "documents_indexed": 0,
+      "documents_failed": 0,
+      "failed_ingestion_rate": null,
+      "chunks_indexed": 0,
+      "indexing_seconds": 0,
+      "indexing_documents_per_minute": null,
+      "indexing_chunks_per_minute": null,
+      "documents_per_minute": null,
+      "chunks_per_minute": null
+    },
+    "storage": "local SQLite (METRICS_DB_PATH)",
+    "privacy": "Request text and generated answers are not stored."
+  },
+  "examples": [
+    {
+      "id": "k8s-control-plane-components",
+      "question": "What do the Kubernetes API server and etcd do?",
+      "answerable": true,
+      "expected_answer": "The API server is the REST front end and gatekeeper for the Kubernetes control plane and datastore. etcd is the strongly consistent, highly available key-value store that persists cluster state.",
+      "generated_answer": "**Kubernetes API Server**\n\n* **Gate‑keeper of the control plane** – every client (kubectl, kubelet, controllers, UI, CI pipelines, etc.) talks to the cluster *only* through the API server’s REST‑ful interface.  \n* **Security front‑end** – it authenticates the request (x509, JWT, webhook, etc.), runs the configured authorizers (RBAC, ABAC, Node, webhook) and then passes the request through the admission chain (quota checks, mutating/validating admission controllers, initializers).  \n* **Request validation & mutation** – the API server validates the schema of the object, applies defaulting, and can let admission plugins mutate the object before it is persisted.  \n* **Front‑end to the datastore** – after the request is approved, the API server writes the object into the backing store (etcd) and serves reads from it. It also watches etcd for changes and pushes those events to the various controllers via the watch mechanism.  \n* **Stateless, highly‑available component** – because all state lives in etcd, you can run multiple API‑server instances behind a load balancer for HA.\n\n**etcd**\n\n* **Strongly‑consistent key‑value store** – etcd is a distributed, Raft‑based database that provides linearizable reads and writes.  \n* **Source of truth for the cluster** – it holds *all* persistent cluster state: objects from the API server (Pods, Services, Deployments, ConfigMaps, Secrets, etc.), controller‑generated status fields, and internal metadata (node health, lease information).  \n* **Highly‑available** – a typical production setup runs an odd number of etcd members (3, 5, …) so that the cluster can tolerate failures while still maintaining quorum.  \n* **Watchable** – controllers and the API server open watches on etcd prefixes; any change is streamed to them, enabling the declarative “desired‑state‑vs‑actual‑state” reconciliation loop.  \n* **Backup/restore critical** – because etcd contains the entire cluster configuration, regular snapshots and disaster‑recovery procedures are essential.\n\n**In short**\n\n- The **API server** is the *front‑door* that authenticates, authorizes, validates, and exposes the Kubernetes API, translating client actions into reads/writes against the datastore.  \n- **etcd** is the *back‑end* persistent store that guarantees a consistent, highly‑available snapshot of the cluster’s desired and current state, which the API server reads from and writes to.  \n\nTogether they form the core of the control plane: the API server mediates every operation, while etcd safely persists the resulting state.",
+      "retrieval": {
+        "semantic_only": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "ranked_document_ids": [
+            "architecture.pptx",
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "architecture.pptx#1",
+            "architecture.pptx#0",
+            "architecture.pptx#10",
+            "architecture.pptx#4",
+            "architecture.pptx#2"
+          ]
+        },
+        "semantic_plus_flashrank": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "ranked_document_ids": [
+            "architecture.pptx",
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "architecture.pptx#1",
+            "architecture.pptx#0",
+            "cronjobs.docx#1",
+            "architecture.pptx#2",
+            "architecture.pptx#10"
+          ]
+        }
+      },
+      "answer_quality_proxies": {
+        "reference_token_f1": 0.1360544217687075,
+        "context_lexical_support_proxy": 0.5641025641025641,
+        "unanswerable_abstention": null,
+        "context_relevance_precision": 0.5,
+        "scoring_note": "Reference token F1 and lexical context support are transparent lexical proxies, not semantic proof of correctness or faithfulness."
+      },
+      "human_review": {
+        "faithfulness": null,
+        "correctness": null,
+        "context_relevance": null,
+        "reviewer": null
+      }
+    },
+    {
+      "id": "k8s-job-restart-policies",
+      "question": "Which restart policies are allowed for Kubernetes Jobs, and what happens when a Job pod fails?",
+      "answerable": true,
+      "expected_answer": "Jobs allow OnFailure, which restarts the container in the same pod, or Never, which marks the pod failed so the Job controller can create another pod. Always is not allowed because it prevents the workload from completing.",
+      "generated_answer": "**Allowed restart policies for a Kubernetes **Job**  \n\n| RestartPolicy | Is it allowed for a Job? | What the controller does when the pod’s container terminates |\n|---------------|--------------------------|--------------------------------------------------------------|\n| **`OnFailure`** | ✅ Allowed | The kubelet will **restart the container inside the same Pod** if it exits with a non‑zero status. The Pod itself stays alive, and the Job counts the attempt as a retry (subject to the Job’s `backoffLimit`). |\n| **`Never`** | ✅ Allowed | The Pod is **marked as Failed** as soon as the container exits with a non‑zero status. The Job controller then **creates a brand‑new Pod** to retry the work (again respecting `backoffLimit`). |\n| **`Always`** | ❌ **Not allowed** for Jobs | If you set `restartPolicy: Always`, the Job controller will reject the manifest because a constantly‑restarting container would never let the Job reach a terminal state (Completed/Failed). |\n\n---\n\n### What happens when a Job pod fails?\n\n1. **Container exits with a non‑zero code** → the pod is considered failed.\n2. **Restart policy determines the immediate reaction**  \n   * **`OnFailure`** – the kubelet restarts the *same* container inside the same Pod. The pod stays in the `Active` state until the container finally exits successfully or the Job’s `backoffLimit` is exhausted.  \n   * **`Never`** – the pod is marked `Failed`. The Job controller treats this as a completed attempt and **spawns a new Pod** to retry the work.\n3. **Back‑off & retry limits**  \n   * Each failed attempt increments the Job’s **`failed`** counter.  \n   * The Job will keep creating new Pods (or restarting the container) until the **`backoffLimit`** is reached.  \n   * When the limit is hit, the Job’s status becomes **`Failed`** and no further Pods are created.\n4. **Job status transitions**  \n   * **Active** – at least one Pod is currently running (or being retried).  \n   * **Completed** – the required number of successful completions (`spec.completions`) has been reached.  \n   * **Failed** – the Job has exhausted its `backoffLimit` without achieving the required completions.\n\n---\n\n### Quick reference commands\n\n```bash\n# Show the restartPolicy that a Job is using (via the pod template)\nkubectl get job <job-name> -o yaml | grep restartPolicy\n\n# Observe a failing Job’s pod lifecycle\nkubectl get pods -l job-name=<job-name> -w   # watch pod creation/failure\nkubectl logs <failed-pod-name>               # see why it exited\nkubectl describe job <job-name>              # see backoff count, events\n```\n\n**Bottom line:**  \nFor Jobs you can only use `OnFailure` or `Never`. When a pod fails, the Job either restarts the container in‑place (`OnFailure`) or creates a fresh pod (`Never`), repeating this process until the job succeeds or the configured `backoffLimit` is reached, at which point the Job is marked **Failed**.",
+      "retrieval": {
+        "semantic_only": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "ranked_document_ids": [
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "cronjobs.docx#1",
+            "cronjobs.docx#2",
+            "cronjobs.docx#0",
+            "monitor_job.docx#10",
+            "monitor_job.docx#7"
+          ]
+        },
+        "semantic_plus_flashrank": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "ranked_document_ids": [
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "cronjobs.docx#1",
+            "monitor_job.docx#4",
+            "monitor_job.docx#5",
+            "monitor_job.docx#3",
+            "monitor_job.docx#7"
+          ]
+        }
+      },
+      "answer_quality_proxies": {
+        "reference_token_f1": 0.10461538461538462,
+        "context_lexical_support_proxy": 0.6966666666666667,
+        "unanswerable_abstention": null,
+        "context_relevance_precision": 0.5,
+        "scoring_note": "Reference token F1 and lexical context support are transparent lexical proxies, not semantic proof of correctness or faithfulness."
+      },
+      "human_review": {
+        "faithfulness": null,
+        "correctness": null,
+        "context_relevance": null,
+        "reviewer": null
+      }
+    },
+    {
+      "id": "k8s-cronjob-scheduling",
+      "question": "How does a Kubernetes CronJob create Jobs from its schedule?",
+      "answerable": true,
+      "expected_answer": "A CronJob uses a cron-format schedule and a Job template. When the schedule fires, its controller creates a Job from that template.",
+      "generated_answer": "### How a **Kubernetes CronJob** Turns a Cron‑style schedule into concrete **Job** objects  \n\nBelow is a step‑by‑step description of the internal flow that the **CronJob controller** (part of the kube‑controller‑manager) follows when it sees a `CronJob` resource such as the one you created in the tutorial:\n\n| Phase | What the controller does | Key fields that drive the behavior |\n|-------|--------------------------|------------------------------------|\n| **1️⃣  Watch & Cache** | The controller registers an informer on `CronJob` resources. Every time a `CronJob` is added, updated, or deleted the informer pushes the object into the controller’s work‑queue. | `spec.schedule`, `spec.startingDeadlineSeconds`, `spec.concurrencyPolicy`, `spec.suspend` |\n| **2️⃣  Compute the next run time** | For each queued `CronJob` the controller parses the **cron expression** (`spec.schedule`). It uses the same algorithm as the standard *cron* library (minute‑hour‑day‑month‑dow) to calculate the **next scheduled time** that is **≥ now** and **≤ now + 100 years** (the controller caps the look‑ahead window to avoid overflow). | `spec.schedule`, optional `spec.timeZone` (if the feature gate is enabled) |\n| **3️⃣  Check if a run is overdue** | If the calculated next run time is **in the past** (e.g., the controller was down or the node was rebooted) it checks `spec.startingDeadlineSeconds`. If the missed run is older than that deadline the controller **drops** the run and records an event (`Missed schedule`). | `spec.startingDeadlineSeconds` |\n| **4️⃣  Enforce `suspend` and `concurrencyPolicy`** | - If `spec.suspend: true` the controller **does not** create a Job. <br>- If `spec.concurrencyPolicy: Forbid` and there is already an active Job (status.active > 0) the new run is skipped. <br>- If `spec.concurrencyPolicy: Replace` the controller deletes any active Jobs before creating the new one. | `spec.suspend`, `spec.concurrencyPolicy` |\n| **5️⃣  Build the Job object** | The controller clones the **`jobTemplate`** section of the CronJob and injects a **generated name** that follows the pattern:  \n\n```\n<cronjob-name>-<timestamp>\n```\n\nwhere `<timestamp>` is the UTC time of the scheduled run formatted as `YYYYMMDDHHMMSS`. This name guarantees uniqueness and makes the relationship obvious when you run `kubectl get jobs`.  \n\nThe generated Job inherits:  \n\n* `metadata.labels` and `metadata.annotations` from the CronJob (plus a label `cronjob-name=<cronjob-name>`).  \n* `spec.completions`, `spec.parallelism`, `spec.completionMode`, etc., exactly as defined in `jobTemplate.spec`.  \n* The **environment variable** `JOB_COMPLETION_INDEX` when `completionMode: Indexed` is used, allowing each pod to know its index (as shown in the “Indexed” example). |\n| **6️⃣  Create the Job** | The controller issues a `client-go` `Create` call to the API server. If the Job already exists (rare, only possible with a race condition), the controller treats it as a successful creation and moves on. | `metadata.name` (generated), `spec.template` (pod spec) |\n| **7️⃣  Update CronJob status** | After a successful Job creation the controller updates the CronJob’s `status.lastScheduleTime` to the time it just scheduled. This field is what you see when you run `kubectl get cronjobs`. | `status.lastScheduleTime` |\n| **8️⃣  Re‑queue for the next tick** | The controller calculates the **next run time** again and re‑queues the CronJob to be processed at that moment (using a time‑based work‑queue). This loop continues for the lifetime of the CronJob. | — |\n\n---\n\n## Visual Flow Diagram (textual)\n\n```\n+-------------------+      watch      +-------------------+\n|  CronJob object   |  <------------  |  CronJob informer |\n+-------------------+                 +-------------------+\n          |                                   |\n          | (enqueue)                         |\n          v                                   v\n+-------------------+   parse cron   +-------------------+\n|  Controller loop  | -------------> |  NextRunTime?     |\n+-------------------+                +-------------------+\n          |                                   |\n   (suspend? / deadline?)                     |\n          |                                   |\n          v                                   v\n+-------------------+   build Job    +-------------------+\n|  Create Job spec  | -------------> |  client-go Create |\n+-------------------+                +-------------------+\n          |                                   |\n          v                                   v\n+-------------------+   update status +-------------------+\n|  CronJob status   | <------------- |  API Server       |\n+-------------------+                +-------------------+\n          |\n          v\n   (re‑queue for next schedule)\n```\n\n---\n\n## Key Points to Remember (Senior‑Architect perspective)\n\n| Concern | How CronJob handles it | What you should verify |\n|---------|-----------------------|------------------------|\n| **Deterministic naming** | `name = <cronjob>-<timestamp>` (UTC) | Use `kubectl get jobs -l cronjob-name=<cronjob>` to filter. |\n| **Idempotency** | The controller checks for an existing Job with the same generated name before creating a new one. | No duplicate Jobs for the same schedule even if the controller restarts. |\n| **Missed runs** | Controlled by `startingDeadlineSeconds`. If a run is older than this, it is dropped and an event is emitted. | Set a reasonable deadline for critical jobs; otherwise you may lose runs during node outages. |\n| **Concurrency** | `spec.concurrencyPolicy` (`Allow` (default), `Forbid`, `Replace`). | Choose `Forbid` for non‑re‑entrant workloads, `Replace` for “latest wins”. |\n| **Time‑zone awareness** | By default schedules are interpreted in UTC. With the `CronJobTimeZone` feature gate you can specify `spec.timeZone`. | Align schedule with business hours by setting `timeZone: \"America/New_York\"` if needed. |\n| **Indexed completions** | When `completionMode: Indexed` the controller adds the env var `JOB_COMPLETION_INDEX` to each pod, and the Job’s `spec.completions` and `spec.parallelism` control how many pods run and how many run concurrently. | Use this for sharding large data‑processing workloads (as in the `worker` example). |\n| **Cleanup** | Completed Jobs are retained according to `spec.successfulJobsHistoryLimit` and `spec.failedJobsHistoryLimit`. | Tune these limits to avoid unbounded Job objects in the cluster. |\n| **Observability** | `kubectl get cronjobs -o wide` shows `LAST SCHEDULE`. `kubectl describe cronjob <name>` lists events (e.g., “Created job …”). | Build alerts on `CronJob` events or on `status.active` staying >0 longer than expected. |\n\n---\n\n## Putting It All Together – What Happens When You Run the Example\n\n1. **You apply** `simple-cronjob.yaml`. The API server stores a `CronJob` object with `schedule: \"*/1 * * * *\"`.\n2. The **CronJob controller** sees the new object, parses the cron expression, and decides the next run time is the next minute boundary.\n3. At that minute, the controller creates a **Job** named something like `simple-cronjob-20261111-120000`.\n4. The Job’s pod runs the `busybox` command (`date; echo \"Hello from CronJob\"`). When the pod finishes, the Job reaches `Complete`.\n5. The controller updates `simple-cronjob.status.lastScheduleTime` to `2026‑11‑11T12:00:00Z` and re‑queues the CronJob for the next minute.\n6. You can list the generated Jobs (`kubectl get jobs`) and see the timestamp suffix, proving the **schedule → Job** transformation.\n\n---\n\n### TL;DR (Senior‑Architect Summary)\n\n- A **CronJob** is a **controller‑managed wrapper** around the **Job** API.\n- The controller **parses the cron expression**, computes the next run time, respects `startingDeadlineSeconds`, `suspend`, and `concurrencyPolicy`, then **creates a Job** by cloning `spec.jobTemplate`.\n- The generated Job name embeds the scheduled UTC timestamp, guaranteeing uniqueness and traceability.\n- Status fields (`lastScheduleTime`, `active`, `successfulJobsHistoryLimit`, etc.) let you monitor the schedule‑to‑Job pipeline.\n- Advanced features like **indexed completions**, **time‑zone support**, and **concurrency policies** give you fine‑grained control over how many pods run, when they run, and how they are cleaned up.\n\nUnderstanding this flow lets you design reliable batch pipelines, reason about missed runs, and implement proper observability and cleanup policies for production‑grade scheduled workloads.",
+      "retrieval": {
+        "semantic_only": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.4,
+            "mrr@5": 1.0,
+            "ndcg@5": 0.9197207891481876
+          },
+          "chunk_metrics": {
+            "recall@5": 0.5,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 0.6131471927654584
+          },
+          "ranked_document_ids": [
+            "cronjobs.docx",
+            "monitor_job.docx",
+            "architecture.pptx"
+          ],
+          "ranked_chunk_ids": [
+            "cronjobs.docx#3",
+            "cronjobs.docx#0",
+            "monitor_job.docx#11",
+            "cronjobs.docx#4",
+            "cronjobs.docx#5"
+          ]
+        },
+        "semantic_plus_flashrank": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.4,
+            "mrr@5": 0.5,
+            "ndcg@5": 0.6934264036172708
+          },
+          "chunk_metrics": {
+            "recall@5": 0.5,
+            "precision@5": 0.2,
+            "mrr@5": 0.25,
+            "ndcg@5": 0.2640681225725909
+          },
+          "ranked_document_ids": [
+            "monitor_job.docx",
+            "cronjobs.docx",
+            "architecture.pptx"
+          ],
+          "ranked_chunk_ids": [
+            "monitor_job.docx#11",
+            "cronjobs.docx#0",
+            "monitor_job.docx#12",
+            "cronjobs.docx#3",
+            "cronjobs.docx#22"
+          ]
+        }
+      },
+      "answer_quality_proxies": {
+        "reference_token_f1": 0.02732919254658385,
+        "context_lexical_support_proxy": 0.45764854614412137,
+        "unanswerable_abstention": null,
+        "context_relevance_precision": 0.5,
+        "scoring_note": "Reference token F1 and lexical context support are transparent lexical proxies, not semantic proof of correctness or faithfulness."
+      },
+      "human_review": {
+        "faithfulness": null,
+        "correctness": null,
+        "context_relevance": null,
+        "reviewer": null
+      }
+    },
+    {
+      "id": "k8s-job-parallelism",
+      "question": "What is the difference between completions and parallelism on a Kubernetes Job?",
+      "answerable": true,
+      "expected_answer": "Completions is the number of pods that must successfully finish. Parallelism is the maximum number of pods running concurrently.",
+      "generated_answer": "**Answer – Completions vs Parallelism on a Kubernetes Job**\n\n| Aspect | **`completions`** | **`parallelism`** |\n|--------|-------------------|-------------------|\n| **Purpose** | The total number of *successful* pod executions that the Job must achieve before it is considered finished. | The maximum number of pods that the Job controller is allowed to run *simultaneously* at any point in time. |\n| **What it counts** | Each time a pod reaches the **Succeeded** phase (i.e., its container exits with exit‑code 0) it contributes one unit toward the `completions` target. | It does **not** count successes; it only limits concurrency. The controller may create up to `parallelism` pods, but each of those pods still has to finish successfully to count toward `completions`. |\n| **Default value** | `1` – the Job succeeds after a single pod finishes successfully. | `1` – the Job runs pods serially unless you raise the value. |\n| **Typical use‑case** | *“Run this batch step exactly N times.”*  Example: processing 10 independent data files where each file must be handled once. | *“Run up to M instances in parallel to speed up the work.”*  Example: launching 5 workers that each pull a task from a queue, but you don’t want to overload the cluster. |\n| **Interaction** | The Job is complete when **`successfulPods >= completions`**. The controller may still be creating new pods (up to `parallelism`) until that condition is met. | The controller will never have more than `parallelism` active pods, even if `completions` is much larger. If `parallelism` ≥ `completions`, the Job can finish in a single wave. |\n| **Effect on retries** | When a pod fails (restart policy `OnFailure` or `Never`), the controller creates a *new* pod to replace it, counting toward the same `completions` target. | Failures do not affect the concurrency limit; the controller may immediately spin up another pod (subject to `parallelism`) to replace the failed one. |\n| **Example manifest** | ```yaml\\napiVersion: batch/v1\\nkind: Job\\nmetadata:\\n  name: image‑converter\\nspec:\\n  completions: 10   # need 10 successful runs\\n  parallelism: 3    # at most 3 pods running at once\\n  template:\\n    spec:\\n      restartPolicy: OnFailure\\n      containers:\\n      - name: converter\\n        image: my‑converter:latest\\n        args: [\\\"/data/input{{.Index}}.png\\\"]\\n``` | In the example above the Job will launch up to three pods concurrently. As each pod succeeds, the controller records one completion. When the tenth pod has succeeded, the Job reaches `completions: 10` and the Job status becomes **Complete**. |\n\n### How the two fields shape Job execution\n\n1. **Serial execution** – `parallelism: 1` (default)  \n   *Only one pod runs at a time.*  \n   `completions` determines how many times that single pod must succeed. This is useful for ordered, deterministic workloads.\n\n2. **Parallel execution, limited concurrency** – `parallelism > 1` and `completions` ≥ `parallelism`  \n   *Multiple pods run side‑by‑side, but never more than the specified concurrency.*  \n   This is the typical “worker pool” pattern: you have many independent tasks (e.g., processing a large dataset) and you want to keep the cluster from being saturated.\n\n3. **One‑shot parallel job** – `parallelism == completions`  \n   *All required pods are launched at once.*  \n   If you set `completions: 5` and `parallelism: 5`, the controller creates five pods in a single wave; the Job finishes as soon as all five succeed (or fail according to the restart policy).\n\n4. **Over‑provisioned parallelism** – `parallelism > completions`  \n   The controller will still respect the `parallelism` ceiling, but once the required number of completions is reached, any extra running pods are terminated and the Job is marked complete. This is rarely needed, but it can be used to “burst” a job and let the scheduler decide how many pods actually start before the Job finishes.\n\n### Practical considerations for a Senior Technical Architect\n\n| Consideration | Guidance |\n|---------------|----------|\n| **Resource budgeting** | Choose `parallelism` based on cluster capacity and the resource profile of the pod (CPU, memory, I/O). Over‑committing can cause pod evictions or throttling. |\n| **Back‑off & retries** | The Job controller respects the pod’s `restartPolicy`. With `OnFailure`, a failing pod is restarted *in‑place* (does not affect `parallelism`). With `Never`, a failed pod is counted as failed and a *new* pod is created, still respecting the `parallelism` limit. |\n| **Idempotency** | When `parallelism` > 1, multiple pods may run concurrently on overlapping data. Ensure the workload is idempotent or partitioned (e.g., via an index or a work queue) to avoid duplicate processing. |\n| **Observability** | Use `kubectl get jobs -o wide` or `kubectl describe job <name>` to see `Desired`, `Successful`, and `Failed` counts. Combine with pod logs (`kubectl logs job/<name>`) and metrics (Prometheus `kube_job_*` series) to monitor progress. |\n| **Scaling to zero** | Once `completions` is reached, the Job controller deletes the active pods (unless `ttlSecondsAfterFinished` is set). This frees resources automatically. |\n| **Parallelism vs. CronJob** | For scheduled batch workloads, a CronJob creates a new Job per schedule. The same `completions`/`parallelism` semantics apply to each generated Job. |\n\n### TL;DR\n\n- **`completions`** = *how many successful pod runs you need* (the job’s “goal”).  \n- **`parallelism`** = *how many pods you’re allowed to run at the same time* (the job’s “concurrency limit”).  \n\nBoth fields together let you express “run N tasks, but no more than M at once,” which is the core pattern for reliable, scalable batch processing in Kubernetes.",
+      "retrieval": {
+        "semantic_only": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 0.25,
+            "ndcg@5": 0.43067655807339306
+          },
+          "ranked_document_ids": [
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "cronjobs.docx#1",
+            "cronjobs.docx#0",
+            "cronjobs.docx#3",
+            "cronjobs.docx#2",
+            "monitor_job.docx#3"
+          ]
+        },
+        "semantic_plus_flashrank": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 0.0,
+            "precision@5": 0.0,
+            "mrr@5": 0.0,
+            "ndcg@5": 0.0
+          },
+          "ranked_document_ids": [
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "cronjobs.docx#1",
+            "monitor_job.docx#13",
+            "monitor_job.docx#3",
+            "cronjobs.docx#0",
+            "monitor_job.docx#0"
+          ]
+        }
+      },
+      "answer_quality_proxies": {
+        "reference_token_f1": 0.03709428129829984,
+        "context_lexical_support_proxy": 0.4645669291338583,
+        "unanswerable_abstention": null,
+        "context_relevance_precision": 0.5,
+        "scoring_note": "Reference token F1 and lexical context support are transparent lexical proxies, not semantic proof of correctness or faithfulness."
+      },
+      "human_review": {
+        "faithfulness": null,
+        "correctness": null,
+        "context_relevance": null,
+        "reviewer": null
+      }
+    },
+    {
+      "id": "k8s-kube-proxy",
+      "question": "What does kube-proxy do on a Kubernetes node?",
+      "answerable": true,
+      "expected_answer": "kube-proxy manages node network rules and forwards connections or load-balances traffic for Kubernetes Services.",
+      "generated_answer": "**kube‑proxy** is the networking agent that runs on **every Kubernetes node**.  \nIts sole responsibility is to translate the high‑level Service abstraction that lives in the API server into concrete network‑forwarding rules on the node so that pods can reach a Service’s virtual IP (ClusterIP) and have their traffic load‑balanced across the backing pod endpoints.\n\n### Core functions\n\n| Function | What happens on the node | Why it matters |\n|----------|--------------------------|----------------|\n| **Watch Service & Endpoints objects** | kube‑proxy watches the API server for `Service` and `Endpoints` resources. When they change, it recomputes the routing table for that node. | Guarantees that the node always has an up‑to‑date view of where Service traffic should go. |\n| **Install network rules** | Depending on the selected proxy mode, it programs one of the following: <br>• **userspace** – runs a proxy process that receives traffic on the Service IP and forwards it via round‑robin to endpoint IPs.<br>• **iptables** – creates a chain of `iptables` NAT/DNAT rules that rewrite the destination address to a pod IP and perform load‑balancing with the `statistic` module.<br>• **ipvs** (alpha in v1.8) – creates IPVS virtual services and real‑servers in the Linux kernel, offering higher performance and richer scheduling algorithms. | Provides the actual packet‑level forwarding / load‑balancing mechanism that makes a Service reachable via a single virtual IP. |\n| **Handle Service types** | - **ClusterIP** – internal virtual IP reachable only inside the cluster.<br>- **NodePort** – opens a port on the node’s primary network interface and forwards it to the Service’s endpoints.<br>- **LoadBalancer** – on cloud providers, the external LB forwards to the node’s `NodePort`; kube‑proxy still handles the node‑side forwarding. | Enables the different Service exposure models without requiring changes to the pods themselves. |\n| **Maintain connection tracking** | By using NAT (iptables/ipvs) the kernel’s conntrack table keeps track of established connections, ensuring that subsequent packets of a flow follow the same backend pod. | Guarantees session affinity (when configured) and avoids “half‑open” connections after a pod dies. |\n| **Graceful handling of node‑level changes** | When a node is added/removed or an endpoint pod dies, kube‑proxy updates its rules accordingly, often within seconds. | Keeps the Service routing consistent with the current cluster topology. |\n\n### How it fits into the node stack\n\n```\n+-------------------+      +-------------------+\n|   kubelet         | <--->|   kube-proxy      |\n+-------------------+      +-------------------+\n        ^                         ^\n        |                         |\n   reads Pod specs          watches Service/\n   (via API server)         Endpoints objects\n```\n\n- **kubelet** schedules pods onto the node and starts the containers.  \n- **kube‑proxy** runs as a daemonset (or static pod) alongside kubelet, but it does **not** manage pod lifecycles; it only manipulates the node’s networking stack.\n\n### Summary\n\n> **kube‑proxy** watches the API server for Service and Endpoint definitions and, on each node, installs the appropriate iptables/ipvs/userspace rules that translate a Service’s virtual IP (or NodePort) into the actual pod IPs that implement the Service. In doing so, it provides intra‑cluster load balancing, service discovery, and the ability to expose services outside the cluster without any changes to the application containers.",
+      "retrieval": {
+        "semantic_only": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "ranked_document_ids": [
+            "architecture.pptx",
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "architecture.pptx#2",
+            "architecture.pptx#1",
+            "architecture.pptx#0",
+            "architecture.pptx#3",
+            "architecture.pptx#11"
+          ]
+        },
+        "semantic_plus_flashrank": {
+          "document_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "chunk_metrics": {
+            "recall@5": 1.0,
+            "precision@5": 0.2,
+            "mrr@5": 1.0,
+            "ndcg@5": 1.0
+          },
+          "ranked_document_ids": [
+            "architecture.pptx",
+            "cronjobs.docx",
+            "monitor_job.docx"
+          ],
+          "ranked_chunk_ids": [
+            "architecture.pptx#2",
+            "architecture.pptx#0",
+            "architecture.pptx#4",
+            "architecture.pptx#1",
+            "cronjobs.docx#1"
+          ]
+        }
+      },
+      "answer_quality_proxies": {
+        "reference_token_f1": 0.05945945945945946,
+        "context_lexical_support_proxy": 0.49859943977591037,
+        "unanswerable_abstention": null,
+        "context_relevance_precision": 0.5,
+        "scoring_note": "Reference token F1 and lexical context support are transparent lexical proxies, not semantic proof of correctness or faithfulness."
+      },
+      "human_review": {
+        "faithfulness": null,
+        "correctness": null,
+        "context_relevance": null,
+        "reviewer": null
+      }
+    },
+    {
+      "id": "k8s-live-cluster-metric-unanswerable",
+      "question": "What is the current CPU utilization of my Kubernetes cluster?",
+      "answerable": false,
+      "expected_answer": "The indexed documents do not contain live cluster metrics, so they cannot determine current CPU utilization.",
+      "generated_answer": "**Answer – How to determine the current CPU utilization of your Kubernetes cluster**\n\nBelow is a practical, step‑by‑step guide you can run from any machine that has `kubectl` configured for the cluster (the same way you verified the nodes with `kubectl get nodes`).  \nThe approach assumes you have the **metrics‑server** (or an equivalent metrics provider such as Prometheus) installed – this is the component that actually collects and exposes CPU/Memory usage data to the API server.\n\n---\n\n## 1. Verify that a metrics provider is available\n\n```bash\n# Quick check – does the metrics API respond?\nkubectl get --raw \"/apis/metrics.k8s.io/v1beta1/nodes\" | jq .\n```\n\n*If you get a JSON document with a list of nodes, the metrics‑server is up and running.*  \nIf you receive a `404` or an error like `the server does not have a resource type \"nodes\"` you need to install the metrics‑server first (see the “Install metrics‑server” box below).\n\n---\n\n## 2. Get a cluster‑wide CPU utilisation view\n\n### 2.1 Using `kubectl top nodes` (most common)\n\n```bash\nkubectl top nodes\n```\n\nTypical output:\n\n```\nNAME       CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%\nminikube   250m         12%    1024Mi          45%\nworker-1   720m         36%    2048Mi          60%\nworker-2   180m         9%     1536Mi          30%\n```\n\n* **CPU(cores)** – current usage in millicores (1000 m = 1 core).  \n* **CPU%** – percentage of the node’s total allocatable CPU that is in use.  \n\nYou can sum the `CPU(cores)` column to get the total cluster consumption, or use a one‑liner:\n\n```bash\nkubectl top nodes --no-headers | awk '{sum+=$2} END {print \"Cluster CPU usage:\", sum, \"millicores\"}'\n```\n\n### 2.2 Raw API call (useful for scripting)\n\n```bash\nkubectl get --raw \"/apis/metrics.k8s.io/v1beta1/nodes\" \\\n  | jq -r '.items[] | \"\\(.metadata.name) \\(.usage.cpu)\"'\n```\n\nResult example:\n\n```\nminikube 250m\nworker-1 720m\nworker-2 180m\n```\n\nYou can convert the millicores to cores (`250m → 0.25 cores`) in any downstream script.\n\n---\n\n## 3. Drill‑down to pod‑level utilisation (optional)\n\nIf you want to see which workloads are driving the CPU load:\n\n```bash\nkubectl top pods --all-namespaces\n```\n\nYou can filter by namespace, label, or node:\n\n```bash\n# By node\nkubectl top pods --all-namespaces --field-selector spec.nodeName=worker-1\n\n# By label (e.g., app=nginx)\nkubectl top pods -l app=nginx\n```\n\n---\n\n## 4. Installing the metrics‑server (if missing)\n\nThe metrics‑server is a lightweight, cluster‑wide aggregator that reads cAdvisor stats from each kubelet and exposes them via the `metrics.k8s.io` API.\n\n```bash\n# 1️⃣ Download the official manifest (adjust the version if needed)\nkubectl apply -f https://github.com/kubernetes-sigs/metrics-server/releases/latest/download/components.yaml\n\n# 2️⃣ Verify the pods are Running in kube-system\nkubectl get pods -n kube-system -l k8s-app=metrics-server\n```\n\n> **Tip:** On some cloud‑provider or Minikube setups you may need to add the flag `--kubelet-insecure-tls` to the metrics‑server deployment (edit the `args` section of the `metrics-server` container).\n\n---\n\n## 5. Interpreting the numbers\n\n| Metric | Meaning | Typical action |\n|--------|---------|----------------|\n| **CPU% per node** | % of allocatable CPU currently used | If > 70 % on a node, consider scaling out (add a node) or investigating high‑CPU pods. |\n| **CPU(cores) total** | Sum of millicores across all nodes | Compare against the cluster’s total capacity (`kubectl describe node` → *Allocatable* CPU). |\n| **CPU% per pod** | Useful to spot runaway containers | Restart, limit resources, or move the pod to a less‑loaded node. |\n\n---\n\n## 6. Quick “one‑liner” for a dashboard‑friendly value\n\nIf you need a single number (e.g., to feed a monitoring dashboard):\n\n```bash\nTOTAL_ALLOC=$(kubectl get nodes -o jsonpath='{range .items[*]}{.status.allocatable.cpu}{\"\\n\"}{end}' \\\n               | awk '{sum+=$1} END {print sum}')\nTOTAL_USED=$(kubectl top nodes --no-headers | awk '{sum+=$2} END {print sum}')\nCPU_PCT=$(awk \"BEGIN {printf \\\"%.1f\\\", $TOTAL_USED/$TOTAL_ALLOC*100}\")\necho \"Cluster CPU utilisation: $CPU_PCT % ($TOTAL_USED millicores of $TOTAL_ALLOC millicores)\"\n```\n\n*Result example:* `Cluster CPU utilisation: 23.4 % (1150 millicores of 4900 millicores)`\n\n---\n\n### TL;DR\n\n1. **Ensure metrics‑server is running** (`kubectl get --raw \"/apis/metrics.k8s.io/v1beta1/nodes\"`).  \n2. **Run `kubectl top nodes`** – this instantly shows per‑node CPU usage and % utilisation.  \n3. **Sum the values** (or use the one‑liner above) to get the cluster‑wide CPU utilisation.  \n4. **Optionally drill down** with `kubectl top pods` to identify the workload responsible for the load.\n\nThat’s the standard, production‑grade way to answer “What is the current CPU utilization of my Kubernetes cluster?” using only native `kubectl` tooling and the metrics‑server. If you already have a monitoring stack (Prometheus + Grafana, Datadog, etc.) you can pull the same metrics from those sources, but the commands above work out‑of‑the‑box on any healthy cluster.",
+      "retrieval": {
+        "semantic_only": {
+          "document_metrics": {
+            "recall@5": null,
+            "precision@5": null,
+            "mrr@5": null,
+            "ndcg@5": null
+          },
+          "chunk_metrics": {
+            "recall@5": null,
+            "precision@5": null,
+            "mrr@5": null,
+            "ndcg@5": null
+          },
+          "ranked_document_ids": [
+            "monitor_job.docx",
+            "pods_autoscale.html",
+            "cronjobs.docx",
+            "architecture.pptx"
+          ],
+          "ranked_chunk_ids": [
+            "monitor_job.docx#0",
+            "monitor_job.docx#3",
+            "pods_autoscale.html#0",
+            "cronjobs.docx#14",
+            "monitor_job.docx#13"
+          ]
+        },
+        "semantic_plus_flashrank": {
+          "document_metrics": {
+            "recall@5": null,
+            "precision@5": null,
+            "mrr@5": null,
+            "ndcg@5": null
+          },
+          "chunk_metrics": {
+            "recall@5": null,
+            "precision@5": null,
+            "mrr@5": null,
+            "ndcg@5": null
+          },
+          "ranked_document_ids": [
+            "architecture.pptx",
+            "monitor_job.docx",
+            "cronjobs.docx",
+            "pods_autoscale.html"
+          ],
+          "ranked_chunk_ids": [
+            "architecture.pptx#4",
+            "architecture.pptx#0",
+            "monitor_job.docx#3",
+            "architecture.pptx#1",
+            "monitor_job.docx#1"
+          ]
+        }
+      },
+      "answer_quality_proxies": {
+        "reference_token_f1": null,
+        "context_lexical_support_proxy": null,
+        "unanswerable_abstention": 0.0,
+        "context_relevance_precision": null,
+        "scoring_note": "Reference token F1 and lexical context support are transparent lexical proxies, not semantic proof of correctness or faithfulness."
+      },
+      "human_review": {
+        "faithfulness": null,
+        "correctness": null,
+        "context_relevance": null,
+        "reviewer": null
+      }
+    }
+  ]
+}

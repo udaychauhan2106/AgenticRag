@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 
 
 env_path=os.path.abspath(os.path.join(os.path.dirname(__file__) ,"..",".env"))
+load_dotenv(env_path)
 
 try:
     token=os.getenv("LOGFIRE_TOKEN")
@@ -72,6 +73,7 @@ if prompt := st.chat_input("Ask about your documentation..."):
                         url = f"{base_url}/query"
                         payload = {"q": prompt, "thread_id": st.session_state.session_id}
                         response = requests.post(url, json=payload, timeout=60)
+                        response.raise_for_status()
                         data = response.json()
                     
         
@@ -93,7 +95,7 @@ if prompt := st.chat_input("Ask about your documentation..."):
                 except Exception as e:
                     logfire.error(f"❌ UI-Backend Connection Failed: {e}")
                     status.update(label="❌ Connection Failed", state="error")
-                    st.error("Backend Offline.")
+                    st.error("Could not complete the request. Check the backend connection and logs.")
                     st.stop()
 
             answer_placeholder = st.empty()

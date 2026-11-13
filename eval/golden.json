@@ -1,0 +1,55 @@
+{
+  "name": "trusted-kubernetes-rag",
+  "version": "1.0.0",
+  "corpus_scope": "processed_data/true and the matching enterprise_rag Qdrant collection; noisy_data is excluded",
+  "examples": [
+    {
+      "id": "k8s-control-plane-components",
+      "question": "What do the Kubernetes API server and etcd do?",
+      "expected_answer": "The API server is the REST front end and gatekeeper for the Kubernetes control plane and datastore. etcd is the strongly consistent, highly available key-value store that persists cluster state.",
+      "answerable": true,
+      "relevant_document_ids": ["architecture.pptx"],
+      "relevant_chunk_ids": ["architecture.pptx#1"]
+    },
+    {
+      "id": "k8s-job-restart-policies",
+      "question": "Which restart policies are allowed for Kubernetes Jobs, and what happens when a Job pod fails?",
+      "expected_answer": "Jobs allow OnFailure, which restarts the container in the same pod, or Never, which marks the pod failed so the Job controller can create another pod. Always is not allowed because it prevents the workload from completing.",
+      "answerable": true,
+      "relevant_document_ids": ["cronjobs.docx"],
+      "relevant_chunk_ids": ["cronjobs.docx#1"]
+    },
+    {
+      "id": "k8s-cronjob-scheduling",
+      "question": "How does a Kubernetes CronJob create Jobs from its schedule?",
+      "expected_answer": "A CronJob uses a cron-format schedule and a Job template. When the schedule fires, its controller creates a Job from that template.",
+      "answerable": true,
+      "relevant_document_ids": ["cronjobs.docx", "architecture.pptx"],
+      "relevant_chunk_ids": ["cronjobs.docx#3", "architecture.pptx#6"]
+    },
+    {
+      "id": "k8s-job-parallelism",
+      "question": "What is the difference between completions and parallelism on a Kubernetes Job?",
+      "expected_answer": "Completions is the number of pods that must successfully finish. Parallelism is the maximum number of pods running concurrently.",
+      "answerable": true,
+      "relevant_document_ids": ["cronjobs.docx"],
+      "relevant_chunk_ids": ["cronjobs.docx#2"]
+    },
+    {
+      "id": "k8s-kube-proxy",
+      "question": "What does kube-proxy do on a Kubernetes node?",
+      "expected_answer": "kube-proxy manages node network rules and forwards connections or load-balances traffic for Kubernetes Services.",
+      "answerable": true,
+      "relevant_document_ids": ["architecture.pptx"],
+      "relevant_chunk_ids": ["architecture.pptx#2"]
+    },
+    {
+      "id": "k8s-live-cluster-metric-unanswerable",
+      "question": "What is the current CPU utilization of my Kubernetes cluster?",
+      "expected_answer": "The indexed documents do not contain live cluster metrics, so they cannot determine current CPU utilization.",
+      "answerable": false,
+      "relevant_document_ids": [],
+      "relevant_chunk_ids": []
+    }
+  ]
+}

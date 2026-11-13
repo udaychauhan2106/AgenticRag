@@ -1,8 +1,8 @@
 import logfire 
+import time
 from app.agents.state import AgentState
 from app.config import settings
 from langchain_groq import ChatGroq
-from app.gateway.cilent import portkey_client, extract_cache_status
 
 llm=ChatGroq(api_key=settings.GROQ_API_KEY , model=settings.GROQ_MODEL,temperature=0)
 
@@ -61,27 +61,23 @@ def generate_node(state: AgentState):
 
     with logfire.span("✍️ LLM Synthesis"):
         try:
-            response = portkey_client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1
-            )
-            content = response.choices[0].message.content
-            cache_status = extract_cache_status(response)
-            is_cache_hit = cache_status == "HIT"
-
-            if is_cache_hit:
-                logfire.info("⚡ Gateway Cache Hit — response served from Portkey cache.")
-                plan_update = state["plan"] + ["Cache: Hit ⚡"]
-                status = "Cache hit — instant response."
-            else:
-                logfire.info("✅ Response synthesised via LLM.")
-                plan_update = state["plan"]
-                status = "Response generated."
+            started = time.perf_counter()
+            response = llm.invoke(prompt)
+            generation_ms = (time.perf_counter() - started) * 1000
+            content = response.content
+            logfire.info("✅ Response synthesised via Groq.")
+            usage = response.usage_metadata or {}
 
             return {
                 "final_answer": content,
-                "status": status,
-                "plan": plan_update,
+                "generation_ms": generation_ms,
+                "model_usage": [{
+                    "model": settings.GROQ_MODEL,
+                    "input_tokens": usage.get("input_tokens", 0),
+                    "output_tokens": usage.get("output_tokens", 0),
+                }],
+                "status": "Response generated.",
+                "plan": state["plan"],
                 "messages": [{"role": "assistant", "content": content}]
             }
 

@@ -4,6 +4,7 @@ from nemoguardrails import RailsConfig, LLMRails
 
 from app.config import settings
 from app.guardrails.colang_rules import COLANG_CONTENT, YAML_CONTENT, RAIL_INDICATORS
+from app.metrics import ModelUsageCallback, ModelUsageCapture
 
 
 _rails: LLMRails | None = None
@@ -12,15 +13,15 @@ _rails: LLMRails | None = None
 def initialize_rails() -> None:
     """
     Build the NeMo LLMRails singleton at app startup.
-    Uses llama-3.1-8b-instant for fast intent classification at the gate —
-    the heavier llama-3.3-70b-versatile is reserved for the RAG pipeline.
+    Uses the smaller Groq model for fast intent classification at the gate.
     """
     global _rails
 
     guard_llm = ChatGroq(
         api_key=settings.GROQ_API_KEY,
-        model="llama-3.1-8b-instant",
-        temperature=0
+        model=settings.GROQ_PLANNER_MODEL,
+        temperature=0,
+        callbacks=[ModelUsageCallback()],
     )
 
     config = RailsConfig.from_content(
@@ -29,12 +30,12 @@ def initialize_rails() -> None:
     )
 
     _rails = LLMRails(config, llm=guard_llm)
-    logfire.info("🛡️ NeMo Guardrails initialised (llama-3.1-8b-instant).")
+    logfire.info(f"🛡️ NeMo Guardrails initialised ({settings.GROQ_PLANNER_MODEL}).")
     
     
 
 
-def guard(message: str) -> tuple[bool, str | None]:
+def guard(message: str) -> tuple[bool, str | None, list[dict]]:
     """
     Run a user message through the NeMo rails gate.
 
@@ -45,10 +46,11 @@ def guard(message: str) -> tuple[bool, str | None]:
     """
     if _rails is None:
         logfire.warning("⚠️ Guardrails not initialised — skipping gate.")
-        return False, None
+        return False, None, []
 
     with logfire.span("🛡️ Guardrails Check"):
-        result = _rails.generate(messages=[{"role": "user", "content": message}])
+        with ModelUsageCapture() as model_usage:
+            result = _rails.generate(messages=[{"role": "user", "content": message}])
 
         
         content = result.get("content", "") if isinstance(result, dict) else str(result)
@@ -57,7 +59,7 @@ def guard(message: str) -> tuple[bool, str | None]:
 
         if fired:
             logfire.info(f"🛡️ Guardrails fired | query='{message[:80]}'")
-            return True, content
+            return True, content, model_usage
 
         logfire.info("✅ Guardrails passed.")
-        return False, None
+        return False, None, model_usage

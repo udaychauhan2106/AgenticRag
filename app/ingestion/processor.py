@@ -8,6 +8,7 @@ from qdrant_client import QdrantClient
 from qdrant_client.http import models
  
 from app import settings
+from app.metrics import record_ingestion_run
 from app.services.retrieval.embeddings import (
     embed_texts,
     get_embedding_dim,
@@ -145,7 +146,7 @@ def save_failed_files(failed: list[dict]) -> None:
         logfire.warning(f"{len(failed)} file(s) failed to index. See {FAILED_FILES_PATH}")
  
  
-def process_file(file_path: str, filename: str, source_type: str) -> None:
+def process_file(file_path: str, filename: str, source_type: str) -> dict | None:
     """Parse -> chunk -> save locally -> embed -> index in Qdrant.
  
     Raises QuotaExhausted if Gemini's daily quota is hit, so callers can
@@ -157,17 +158,17 @@ def process_file(file_path: str, filename: str, source_type: str) -> None:
  
         if parser is None:
             logfire.warning(f"Skipping unsupported file type: {filename}")
-            return
+            return None
  
         full_text = parser(file_path)
  
         if not full_text or not full_text.strip():
             logfire.warning(f"No text extracted from {filename} - skipping")
-            return
+            return None
  
         chunks = chunk_text(full_text)
         if not chunks:
-            return
+            return None
  
         processed_data = {
             "filename": filename,
@@ -177,6 +178,7 @@ def process_file(file_path: str, filename: str, source_type: str) -> None:
         local_path = save_processed_locally(processed_data, source_type, filename)
         logfire.info(f"Saved processed data -> {local_path}")
  
+        indexing_started = time.perf_counter()
         with logfire.span("Vectorizing & Indexing"):
             embeddings = embed_texts(chunks)
  
@@ -210,6 +212,10 @@ def process_file(file_path: str, filename: str, source_type: str) -> None:
             upsert_points_batched(points)
  
             logfire.info(f"Indexed {len(points)} points to Qdrant from {filename}")
+        return {
+            "chunks": len(chunks),
+            "indexing_seconds": time.perf_counter() - indexing_started,
+        }
  
  
 def _iter_files_recursive(dir_path: str):
@@ -219,7 +225,12 @@ def _iter_files_recursive(dir_path: str):
             yield os.path.join(root, filename), filename
  
  
-def process_directory(dir_path: str, source_type: str, failed_files: list[dict]) -> bool:
+def process_directory(
+    dir_path: str,
+    source_type: str,
+    failed_files: list[dict],
+    stats: dict | None = None,
+) -> bool:
     """Process every file in a directory (recursively).
  
     Returns False and stops early if Gemini's daily quota is exhausted mid-run;
@@ -228,11 +239,20 @@ def process_directory(dir_path: str, source_type: str, failed_files: list[dict])
     """
     with logfire.span("Scanning Directory", path=dir_path, source=source_type):
         entries = list(_iter_files_recursive(dir_path))
+        if stats is not None:
+            stats["files_seen"] += len(entries)
         logfire.info(f"Found {len(entries)} files under {dir_path}")
  
         for full_path, filename in entries:
             try:
-                process_file(full_path, filename, source_type)
+                result = process_file(full_path, filename, source_type)
+                if stats is not None:
+                    if result is None:
+                        stats["documents_skipped"] += 1
+                    else:
+                        stats["documents_indexed"] += 1
+                        stats["chunks_indexed"] += result["chunks"]
+                        stats["indexing_seconds"] += result["indexing_seconds"]
             except QuotaExhausted:
                 logfire.error(
                     f"Gemini daily quota exhausted while processing {filename}. "
@@ -244,6 +264,8 @@ def process_directory(dir_path: str, source_type: str, failed_files: list[dict])
                     "source_type": source_type,
                     "reason": "quota_exhausted",
                 })
+                if stats is not None:
+                    stats["documents_failed"] += 1
                 return False
             except Exception:
                 logfire.exception(
@@ -257,6 +279,8 @@ def process_directory(dir_path: str, source_type: str, failed_files: list[dict])
                     "source_type": source_type,
                     "reason": "error",
                 })
+                if stats is not None:
+                    stats["documents_failed"] += 1
         return True
  
  
@@ -269,41 +293,60 @@ def run_universal_ingestion(base_dir: str, explicit_source_type: str = None, wip
     so the run can be resumed later without rescanning everything.
     """
     failed_files: list[dict] = []
- 
-    with logfire.span("Universal Ingestion Started", base_directory=base_dir):
-        ensure_collection(wipe=wipe)
- 
-        subdirs = [
-            d for d in os.listdir(base_dir)
-            if os.path.isdir(os.path.join(base_dir, d))
-        ]
- 
-        if not subdirs:
-            if explicit_source_type:
-                source_type = explicit_source_type
+    stats = {
+        "files_seen": 0,
+        "documents_indexed": 0,
+        "documents_failed": 0,
+        "documents_skipped": 0,
+        "chunks_indexed": 0,
+        "indexing_seconds": 0.0,
+    }
+    started = time.perf_counter()
+
+    try:
+        with logfire.span("Universal Ingestion Started", base_directory=base_dir):
+            ensure_collection(wipe=wipe)
+
+            subdirs = [
+                d for d in os.listdir(base_dir)
+                if os.path.isdir(os.path.join(base_dir, d))
+            ]
+
+            if not subdirs:
+                if explicit_source_type:
+                    source_type = explicit_source_type
+                else:
+                    base_name = os.path.basename(os.path.normpath(base_dir)).lower()
+                    source_type = (
+                        "true" if "true" in base_name
+                        else "noise" if "noise" in base_name
+                        else "general"
+                    )
+                logfire.info(f"No sub-folder found - processing '{base_dir}' as {source_type}")
+                process_directory(base_dir, source_type, failed_files, stats)
             else:
-                base_name = os.path.basename(os.path.normpath(base_dir)).lower()
-                source_type = (
-                    "true" if "true" in base_name
-                    else "noise" if "noise" in base_name
-                    else "general"
-                )
-            logfire.info(f"No sub-folder found - processing '{base_dir}' as {source_type}")
-            process_directory(base_dir, source_type, failed_files)
-        else:
-            for subdir in subdirs:
-                source_type = (
-                    "true" if "true" in subdir.lower()
-                    else "noisy" if "noisy" in subdir.lower()
-                    else subdir
-                )
-                completed = process_directory(
-                    os.path.join(base_dir, subdir), source_type, failed_files
-                )
-                if not completed:
-                    break
- 
-    save_failed_files(failed_files)
+                for subdir in subdirs:
+                    source_type = (
+                        "true" if "true" in subdir.lower()
+                        else "noisy" if "noisy" in subdir.lower()
+                        else subdir
+                    )
+                    completed = process_directory(
+                        os.path.join(base_dir, subdir), source_type, failed_files, stats
+                    )
+                    if not completed:
+                        break
+    finally:
+        save_failed_files(failed_files)
+        record_ingestion_run(
+            elapsed_seconds=time.perf_counter() - started,
+            files_seen=stats["files_seen"],
+            documents_indexed=stats["documents_indexed"],
+            documents_failed=stats["documents_failed"],
+            documents_skipped=stats["documents_skipped"],
+            chunks_indexed=stats["chunks_indexed"],
+            indexing_seconds=stats["indexing_seconds"],
+        )
     return failed_files
  
  
@@ -315,21 +358,45 @@ def retry_failed_files():
     if not failed:
         logfire.info("No failed files to retry.")
         return
- 
+
+    started = time.perf_counter()
+    stats = {
+        "documents_indexed": 0,
+        "documents_failed": 0,
+        "chunks_indexed": 0,
+        "indexing_seconds": 0.0,
+    }
     still_failed: list[dict] = []
     for entry in failed:
         try:
-            process_file(entry["path"], entry["filename"], entry["source_type"])
+            result = process_file(entry["path"], entry["filename"], entry["source_type"])
+            if result is None:
+                stats["documents_failed"] += 1
+            else:
+                stats["documents_indexed"] += 1
+                stats["chunks_indexed"] += result["chunks"]
+                stats["indexing_seconds"] += result["indexing_seconds"]
         except QuotaExhausted:
             logfire.error("Gemini quota exhausted again - stopping retry pass.")
             still_failed.append({**entry, "reason": "quota_exhausted"})
             still_failed.extend(failed[len(still_failed):])  # keep the rest un-retried
+            stats["documents_failed"] += 1
             break
         except Exception:
             logfire.exception("Retry failed again", filename=entry["filename"])
             still_failed.append({**entry, "reason": "error"})
- 
+            stats["documents_failed"] += 1
+
     save_failed_files(still_failed)
+    record_ingestion_run(
+        elapsed_seconds=time.perf_counter() - started,
+        files_seen=len(failed),
+        documents_indexed=stats["documents_indexed"],
+        documents_failed=stats["documents_failed"],
+        documents_skipped=0,
+        chunks_indexed=stats["chunks_indexed"],
+        indexing_seconds=stats["indexing_seconds"],
+    )
  
  
 if __name__ == "__main__":

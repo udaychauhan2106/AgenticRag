@@ -64,6 +64,19 @@ def get_embedding_dim() -> int:
     """Return the vector dimension for the active model. Triggers _init() if needed."""
     _init()
     return _GEMINI_DIM if _model_type == "gemini" else _FALLBACK_DIM
+
+
+def get_embedding_model_name(initialize: bool = True) -> str:
+    """Return the model currently selected for embeddings."""
+    if initialize:
+        _init()
+    if _model_type is None:
+        return "not_initialized"
+    return (
+        "models/gemini-embedding-2-preview"
+        if _model_type == "gemini"
+        else "sentence-transformers/all-mpnet-base-v2"
+    )
  
  
 def _classify_error(err: str) -> str:

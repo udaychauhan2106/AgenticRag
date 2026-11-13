@@ -4,6 +4,7 @@ from flashrank import Ranker, RerankRequest
 
 
 _ranker = None
+RERANKER_MODEL = "ms-marco-MiniLM-L-6-v2"
 
 
 def _get_ranker() -> Ranker:
@@ -22,7 +23,9 @@ def _get_ranker() -> Ranker:
 
 
 
-def rerank_documents(query: str, documents: list[str], top_n: int = 5) -> list[str]:
+def rerank_documents_with_indices(
+    query: str, documents: list[str], top_n: int = 5
+) -> list[tuple[int, str]]:
     """
     Refines retrieval results by re-scoring documents against the query semantically.
 
@@ -46,7 +49,7 @@ def rerank_documents(query: str, documents: list[str], top_n: int = 5) -> list[s
         
         reranked_docs = []
         for res in results[:top_n]:
-            reranked_docs.append(res['text'])
+            reranked_docs.append((int(res["id"]), res["text"]))
 
         duration = time.time() - start_time
         top_score = results[0]['score'] if results else 'N/A'
@@ -56,4 +59,11 @@ def rerank_documents(query: str, documents: list[str], top_n: int = 5) -> list[s
 
     except Exception as e:
         logfire.error(f"❌ [Reranker] Semantic Reranking Failed: {e}")
-        return documents[:top_n]
+        raise
+
+
+def rerank_documents(query: str, documents: list[str], top_n: int = 5) -> list[str]:
+    return [
+        document
+        for _, document in rerank_documents_with_indices(query, documents, top_n)
+    ]
