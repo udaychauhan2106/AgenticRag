@@ -133,6 +133,23 @@ uv run streamlit run ui/app.py
 
 ---
 
+## LiveRAG Validation Configuration
+
+The LiveRAG page-validation layer reads these limits from environment variables:
+
+| Variable | Default | Purpose |
+| --- | ---: | --- |
+| `LIVERAG_MAX_EXTRACTED_TEXT_BYTES` | `512000` | Maximum UTF-8 bytes in the request's full text and, independently, in its structured blocks (500 KiB). |
+| `LIVERAG_MAX_CONTENT_BLOCKS` | `1000` | Maximum number of structured content blocks. |
+| `LIVERAG_EXTRACTION_MAX_FUTURE_SKEW_SECONDS` | `300` | Allowed future clock skew for the client extraction timestamp (5 minutes). |
+| `LIVERAG_EXTRACTION_MAX_AGE_DAYS` | `30` | Maximum age allowed for the client extraction timestamp. |
+
+These are extraction-text limits, not HTTP request-body limits. The client word
+count is treated as untrusted metadata; the backend calculates its own count
+from normalized block content.
+
+---
+
 ## Project Structure
 
 ```text
